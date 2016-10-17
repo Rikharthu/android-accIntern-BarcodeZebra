@@ -1,0 +1,42 @@
+<html>
+
+    <style>
+        .button {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+    }
+    </style>
+
+    <p>Hello</p>
+    <a href="settings.html">Settings</a>
+    <!--<a href="settings.html">Settings</a>-->
+    <button class="button" type="button" onClick="scanQRCode()">scanQRCode()</button>
+    <button class="button" type="button" onClick="setOutput('Test')">SetDaText</button>
+    <!--at the click of the button, the showAndroidToast() function
+    uses the Android interface to call the WebAppInterface.showToast() method.-->
+    <input type="button" value="Say hello" onClick="showAndroidToast('Hello Android!')" />
+
+    <p id="output"></p>
+
+    <script type="text/javascript">
+    function showAndroidToast(toast) {
+        // Call Android method from bound class
+        // "Android" is class name that was passed in addJavaScriptInterface
+        Android.showToast(toast);
+    }
+    function scanQRCode(){
+        Android.scanQRCode();
+    }
+    function setOutput(text){
+        document.getElementById("output").innerHTML = text;
+    }
+    </script>
+
+
+</html>
