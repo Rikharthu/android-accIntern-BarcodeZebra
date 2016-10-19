@@ -67,7 +67,7 @@ public class MainFragment extends Fragment implements WebAppInterface.WebAppList
             mBarcodes=savedInstanceState.getStringArrayList(BARCODES);
             if(mBarcodes!=null) {
                 // notify WebViewClient to restore barcodes when WebView finishes rendering (when javascript becomes available)
-                mClient.restoreBarcodes(mBarcodes);
+                mClient.setBarcodes(mBarcodes);
             }
 
         }
@@ -110,6 +110,7 @@ public class MainFragment extends Fragment implements WebAppInterface.WebAppList
             mBarcodes=new ArrayList<>();
         }
         mBarcodes.add(barcode);
+        mClient.setBarcodes(mBarcodes);
         // at that point mWebView is fully rendered. I hope so.
         mWebView.post(new Runnable() {
             @Override

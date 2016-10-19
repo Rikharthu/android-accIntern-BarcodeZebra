@@ -56,8 +56,19 @@ uses the Android interface to call the WebAppInterface.showToast() method.-->
     function addBarcodeJS(code) {
         var ol = document.getElementById("list");
         var li = document.createElement("li");
-        li.appendChild(document.createTextNode(code));
+        if(isUrl(code)){
+            var a = document.createElement("a");
+            a.appendChild(document.createTextNode(code));
+            a.href=code;
+            li.appendChild(a);
+        }else{
+            li.appendChild(document.createTextNode(code));
+        }
         ol.appendChild(li);
+    }
+    function isUrl(s) {
+       var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+       return regexp.test(s);
     }
     </script>
 

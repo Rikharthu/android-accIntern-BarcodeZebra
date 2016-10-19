@@ -34,14 +34,15 @@ public class MyWebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
 //        view.loadUrl("javascript:addBarcodeJS('"+1234567890+"')");
-        if(shouldRestore){
-            // to prevet further calling (WebView may load other URLs, that doesnt have required javascript)
-            shouldRestore=false;
+        if(mBarcodesToRestore!=null && url.equals(MainFragment.MAIN_PAGE)){
+            // 
             for (String barcode: mBarcodesToRestore) {
                 view.loadUrl("javascript:addBarcodeJS('"+barcode+"')");
             }
         }
     }
+
+
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -57,8 +58,7 @@ public class MyWebViewClient extends WebViewClient {
         return false;
     }
 
-    public void restoreBarcodes(ArrayList<String> mBarcodes) {
-        shouldRestore=true;
+    public void setBarcodes(ArrayList<String> mBarcodes) {
         mBarcodesToRestore=mBarcodes;
     }
     /* Now when the user clicks a link, the system calls shouldOverrideUrlLoading(),
