@@ -13,16 +13,13 @@ import android.view.ViewGroup;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class ScannerFragment extends Fragment {
+    public static final String TAG=ScannerFragment.class.getSimpleName();
 
     private ZXingScannerView.ResultHandler mResultHandler;
-    //TODO remove
-    private Context mContext;
     ZXingScannerView mScannerView;
 
-    public static ScannerFragment newInstance(Context c){
+    public static ScannerFragment newInstance(){
         ScannerFragment fragment = new ScannerFragment();
-        fragment.mContext=c;
-
         return fragment;
     }
 
@@ -33,8 +30,9 @@ public class ScannerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("SCANNER_FRAGMENT","onCreate()");
+        Log.d(TAG,"onCreate()");
     }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,13 +44,18 @@ public class ScannerFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mScannerView.setResultHandler((ZXingScannerView.ResultHandler) getActivity()); // Register MainActivity as handler for results
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         // start scanning for barcodes
-        ((ZXingScannerView)view).startCamera();
+        mScannerView.startCamera();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("ScannerFragment","onDestroy()");
+        Log.d(TAG,"onDestroy()");
     }
 }

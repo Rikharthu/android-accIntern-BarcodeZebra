@@ -35,6 +35,8 @@ public class MyWebViewClient extends WebViewClient {
         super.onPageFinished(view, url);
 //        view.loadUrl("javascript:addBarcodeJS('"+1234567890+"')");
         if(shouldRestore){
+            // to prevet further calling (WebView may load other URLs, that doesnt have required javascript)
+            shouldRestore=false;
             for (String barcode: mBarcodesToRestore) {
                 view.loadUrl("javascript:addBarcodeJS('"+barcode+"')");
             }
