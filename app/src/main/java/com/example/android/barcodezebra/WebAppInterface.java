@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 /** Interface between JavaScript code and Android code */
 public class WebAppInterface {
+    //TODO: LOG_TAG = WebAppInterface.class.getSimpleName();
     private static final String TAG="WebAppInterface";
 
     public static final int SCAN_QR=1;
@@ -25,6 +26,7 @@ public class WebAppInterface {
     @JavascriptInterface // required for API>=  17
     public void showToast(String toast) {
         Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+        //TODO don't use magic numbers!
         mListener.onClick(2);
     }
 
@@ -35,6 +37,7 @@ public class WebAppInterface {
     }
 
     interface WebAppListener{
+        //TODO rename c
         public void onClick(int c);
     }
 

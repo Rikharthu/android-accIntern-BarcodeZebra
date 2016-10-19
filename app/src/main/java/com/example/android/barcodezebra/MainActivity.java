@@ -21,9 +21,10 @@ import com.google.zxing.Result;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class MainActivity extends AppCompatActivity implements MainFragment.MainFragmentListener, ZXingScannerView.ResultHandler {
+
     public static final String TAG= MainActivity.class.getSimpleName();
 
-    public static final String URL="https://developer.android.com/guide/webapps/webview.html";
+//    public static final String URL="https://developer.android.com/guide/webapps/webview.html";
     public static final String MAIN_PAGE="file:///android_asset/index.html";
     private ZXingScannerView mScannerView;
     MainFragment mMainFragment;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
             mMainFragment = MainFragment.newInstance(this);
             mMainFragment.setListener(this);
             FragmentTransaction transaction = manager.beginTransaction();
+            //TODO create string consts
             transaction.replace(R.id.container, mMainFragment, "main_fragment");
             transaction.commit();
             isMainFragment = true;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
 
     }
 
+    //TODO naming
     public void QrScanner(){
         mScannerFragment = ScannerFragment.newInstance(this);
         FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        //TODO - don't do so
         //Save the fragment's instance
         FragmentManager manager = getSupportFragmentManager();
         manager.putFragment(outState, "main_fragment", mMainFragment);
@@ -125,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
         // mScannerView.resumeCameraPreview(this);
     }
 
+    //TODO use onBackPressed()
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Check if the key event was the Back button and if there's history
