@@ -1,6 +1,8 @@
 package com.example.android.barcodezebra;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,74 +28,121 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
     private ZXingScannerView mScannerView;
     MainFragment mMainFragment;
     ScannerFragment mScannerFragment;
+    private boolean isMainFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mMainFragment = MainFragment.newInstance(this);
-        mScannerFragment=ScannerFragment.newInstance(this);
-        FragmentTransaction transaction= getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container,mMainFragment);
-        transaction.commit();
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment currentFragment = manager.findFragmentById(R.id.container);
+        if(savedInstanceState==null) {
+            // setup
+            Log.d(TAG, "creating both fragments");
+            mMainFragment = MainFragment.newInstance(this);
+            mMainFragment.setListener(this);
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.container, mMainFragment, "main_fragment");
+            transaction.commit();
+            isMainFragment = true;
+        }else{
+            // mainFragment is guaranteed to be in saveInstanceState
+            mMainFragment= (MainFragment) manager.getFragment(savedInstanceState,"main_fragment");
+            mMainFragment.setListener(this);
+            // but scanner fragment may be null
+            mScannerFragment= (ScannerFragment) manager.getFragment(savedInstanceState,"scanner_fragment");
+            if(mScannerFragment==null){
+                Log.d(TAG,"scanner is null");
+            }else{
+                Log.d(TAG,"scanner is not null");
+                mScannerFragment.setHandler(this);
+            }
+        }
 
     }
 
     public void QrScanner(){
+        mScannerFragment = ScannerFragment.newInstance(this);
         FragmentTransaction transaction=getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container,mScannerFragment);
+        // FIXME doesnt work with replace
+        transaction.add(R.id.container,mScannerFragment,"scanner_fragment");
         transaction.addToBackStack(null);
         transaction.commit();
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's instance
+        FragmentManager manager = getSupportFragmentManager();
+        manager.putFragment(outState, "main_fragment", mMainFragment);
+        if(manager.findFragmentByTag("scanner_fragment")!=null)
+            // persist scanner fragment too, if it is in the manager
+            manager.putFragment(outState, "scanner_fragment", mScannerFragment);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        mMainFragment.addBarcode("1234567890");
+    }
+
+    @Override
     public void handleResult(Result rawResult) {
-        // Do something with the result here</p>
-        Log.e("handler", rawResult.getText()); // Prints scan results<br />
-        Log.e("handler", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode)</p>
-        // show the scanner result into dialog box.<br />
+        Log.d(TAG,"handleResult");
+        // Remove scanner fragment from manager
+        FragmentManager manager = getSupportFragmentManager();
+        getSupportFragmentManager().beginTransaction()
+                .remove(mScannerFragment).commit();
+        manager.popBackStack();
+        // FIXME why it is tellin that scanner is not null?
+        if(getSupportFragmentManager().findFragmentByTag("scanner_fragment")==null){
+            Log.d(TAG,"scanner is null");
+        }else{
+            Log.d(TAG,"scanner is not null");
+        }
+        // Do something with the result here
+        Log.e("handler", rawResult.getText()); // Prints scan results
+        Log.e("handler", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode)
+        // show the scanner result into dialog box
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Scan Result");
         builder.setMessage(rawResult.getText());
         AlertDialog alert1 = builder.create();
         alert1.show();
-        setContentView(R.layout.activity_main);
 
-        FragmentTransaction transaction= getSupportFragmentManager().beginTransaction();
-        // TODO zamenit na metod fragmenta
-        Bundle args = new Bundle();
-        args.putString("barcode",rawResult.getText());
-//        mMainFragment.setArguments(args);
-        transaction.replace(R.id.container,mMainFragment);
-        transaction.commit();
+//        while(!mMainFragment.isVisible());
+        mMainFragment.addBarcode(rawResult.getText());
+
+        // no need, since we know, that there always is MainFragment
+//        FragmentTransaction transaction= getSupportFragmentManager().beginTransaction();
+//        transaction.replace(R.id.container,mMainFragment);
+//        transaction.commit();
 
         // If you would like to resume scanning, call this method below:
         // mScannerView.resumeCameraPreview(this);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-//        QrScanner();
-//        Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-//        intent.putExtra("com.google.zxing.client.android.SCAN.SCAN_MODE", "QR_CODE_MODE");
-//        Intent chooserIntent = Intent.createChooser(intent, "Select Application");
-//        startActivityForResult(chooserIntent, 0);
-
-    }
-
-    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Check if the key event was the Back button and if there's history
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mMainFragment.mWebView.canGoBack()) {
-            mMainFragment.mWebView.goBack();
-            return true;
+
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            // if current fragment is MainFragment (WebView is initialized)
+            if(getCurrentFragment()==mMainFragment && mMainFragment.mWebView.canGoBack()){
+                mMainFragment.mWebView.goBack();
+                return true;
+            }
         }
         // If it wasn't the Back key or there's no web page history, bubble up to the default
         // system behavior (probably exit the activity)
         return super.onKeyDown(keyCode, event);
 
+    }
+
+    private Fragment getCurrentFragment(){
+        return getSupportFragmentManager().findFragmentById(R.id.container);
     }
 
     @Override
@@ -102,6 +151,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
             case WebAppInterface.SCAN_QR:
                 Log.d(TAG,"scanning QR code");
                 QrScanner();
+                break;
+            case 13:
+                // mainfragment view created. can interract with WebView
+                mMainFragment.addBarcode("Halloy");
                 break;
         }
     }

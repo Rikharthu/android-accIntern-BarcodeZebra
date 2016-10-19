@@ -2,6 +2,7 @@ package com.example.android.barcodezebra;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebResourceError;
@@ -9,10 +10,14 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class MyWebViewClient extends WebViewClient {
     public static final String TAG=MyWebViewClient.class.getSimpleName();
+
+    private boolean shouldRestore;
+    private ArrayList<String> mBarcodesToRestore;
 
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
@@ -21,6 +26,19 @@ public class MyWebViewClient extends WebViewClient {
         Map<String,String> headers =request.getRequestHeaders();
         Log.d(TAG,"headers: "+headers.toString());
         Log.d(TAG,"error code: "+error.getErrorCode()+"\n"+error.getDescription());
+
+    }
+
+    // executed when WebView is fully rendered
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+//        view.loadUrl("javascript:addBarcodeJS('"+1234567890+"')");
+        if(shouldRestore){
+            for (String barcode: mBarcodesToRestore) {
+                view.loadUrl("javascript:addBarcodeJS('"+barcode+"')");
+            }
+        }
     }
 
     @Override
@@ -35,6 +53,11 @@ public class MyWebViewClient extends WebViewClient {
 //        return true;
 
         return false;
+    }
+
+    public void restoreBarcodes(ArrayList<String> mBarcodes) {
+        shouldRestore=true;
+        mBarcodesToRestore=mBarcodes;
     }
     /* Now when the user clicks a link, the system calls shouldOverrideUrlLoading(),
     which checks whether the URL host matches a specific domain (as defined above).
