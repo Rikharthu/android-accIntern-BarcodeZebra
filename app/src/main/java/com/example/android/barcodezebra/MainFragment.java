@@ -59,6 +59,7 @@ public class MainFragment extends Fragment implements WebAppInterface.WebAppList
         /* we set this interface's name "Android" so in javascript we can refer to this class's methods
         as Android.showToast(...). Javascript interpretes this as Class name, whose methods it can call */
         // IMPORTANT! This objects runs in a separate thread!
+        //TODO store name at WebAppInterface
         mWebView.addJavascriptInterface(new WebAppInterface(getContext(),this), "Android");
 
 //        mWebView.setWebViewClient(new WebViewClient() {
@@ -69,6 +70,7 @@ public class MainFragment extends Fragment implements WebAppInterface.WebAppList
         mClient = new MyWebViewClient();
         mWebView.setWebViewClient(mClient);
         if(savedInstanceState!=null){
+            //TODO store keys properly
             mBarcodes=savedInstanceState.getStringArrayList("barcodes");
             if(mBarcodes!=null) {
                 // notify WebViewClient to restore barcodes when WebView finishes rendering (when javascript becomes available)
@@ -134,6 +136,7 @@ public class MainFragment extends Fragment implements WebAppInterface.WebAppList
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        //TODO use keys properly
         outState.putStringArrayList("barcodes",mBarcodes);
         super.onSaveInstanceState(outState);
     }
