@@ -48,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Main
             isMainFragment = true;
         }else{
             // mainFragment is guaranteed to be in saveInstanceState
-            mMainFragment= (MainFragment) manager.getFragment(savedInstanceState,"main_fragment");
+//            mMainFragment= (MainFragment) manager.getFragment(savedInstanceState,"main_fragment");
+            mMainFragment= (MainFragment) manager.findFragmentByTag("main_fragment");
             mMainFragment.setListener(this);
             // but scanner fragment may be null
             mScannerFragment= (ScannerFragment) manager.getFragment(savedInstanceState,"scanner_fragment");
