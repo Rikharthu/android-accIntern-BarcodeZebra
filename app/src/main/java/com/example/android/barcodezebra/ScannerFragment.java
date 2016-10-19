@@ -15,6 +15,7 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 public class ScannerFragment extends Fragment {
 
     private ZXingScannerView.ResultHandler mResultHandler;
+    //TODO remove
     private Context mContext;
     ZXingScannerView mScannerView;
 
